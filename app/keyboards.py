@@ -12,14 +12,17 @@ resize_keyboard=True, input_field_placeholder='Привет, нажми кноп
 )
 
 pay = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text='Перевод', callback_data='translate')],
-    [InlineKeyboardButton(text='Крипта', callback_data='Crypto')]
+    [InlineKeyboardButton(text='Перевод', callback_data='translate')]
 ])
 
 bank = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text='СБП', callback_data='SBP')],
-    [InlineKeyboardButton(text='Сбербанк', callback_data='Sberbank')],
-    [InlineKeyboardButton(text='Тинькофф', callback_data='Tinkoff')],
-    [InlineKeyboardButton(text='Альфа', callback_data='Alfa')],
-    [InlineKeyboardButton(text='ВТБ', callback_data='Vtb')],
+    [InlineKeyboardButton(text='Сбербанк🟢', callback_data='Sberbank'), InlineKeyboardButton(text='Тинькофф🟡', callback_data='Tinkoff')],
+    [InlineKeyboardButton(text='Альфа🔴', callback_data='Alfa'),InlineKeyboardButton(text='ВТБ🔵', callback_data='Vtb')],
+    [InlineKeyboardButton(text='СБП⚪️', callback_data='SBP')],
+    [InlineKeyboardButton(text='QIWI🟠', callback_data='Qiwi'), InlineKeyboardButton(text='ЮMoney🟣', callback_data='Ymoney')]
 ])
+
+
+menu = ReplyKeyboardMarkup(keyboard=[
+    [KeyboardButton(text='Главное меню')]
+], resize_keyboard=True)

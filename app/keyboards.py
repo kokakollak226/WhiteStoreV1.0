@@ -33,5 +33,13 @@ Verify = InlineKeyboardMarkup(inline_keyboard=[
 ])
 
 Faq = InlineKeyboardMarkup(inline_keyboard=[
+
     [InlineKeyboardButton(text='⬅️Назад', callback_data='Back'), InlineKeyboardButton(text='📝Поддержка', callback_data='Faq')]
 ])
+
+Admin = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text='Рассылка', callback_data='sms')],
+    [InlineKeyboardButton(text='Добавить в ЧС', callback_data='ban'), InlineKeyboardButton(text='Убрать из чс', callback_data='unban')],
+    [InlineKeyboardButton(text='Статистика', callback_data='static')]
+])
+

@@ -4,9 +4,15 @@ from aiogram.types import Message, CallbackQuery
 import app.keyboards as kb
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
-import time
+import app.database.requests as rq
+
 
 router = Router()
+
+class dialog(StatesGroup):
+    spam = State()
+    blacklist = State()
+    whitelist = State()
 
 class standgold(StatesGroup):
     gold = State()
@@ -16,6 +22,7 @@ class standgold(StatesGroup):
 @router.message(CommandStart())
 async def cmd_start(message: Message, state: FSMContext):
     state.clear
+    await rq.set_user(message.from_user.id)
     await message.answer(f'👋Здравствуйте {message.from_user.first_name},\n 🏠Главное меню.\n'
                         f'🔢Для взаимодействия с ботом используй клавиатуру.\n'
                         f'⚡️ Для покупки голды перейди в раздел «💵 Купить».\n'
@@ -48,7 +55,7 @@ async def sum(message: Message, state: FSMContext):
         await message.answer(f'📝 За {rub} ₽ ты получаешь {golda} голды. Для пополнения баланса выбери наиболее удобный тебе способ оплаты:', reply_markup=kb.bank) 
         await state.set_state(standgold.bank)
     except Exception:
-        message.answer('Введите целое число')
+        await message.answer('Введите целое число')
     
 @router.callback_query(F.data == 'Back')
 async def Back(callback: CallbackQuery, state: FSMContext):

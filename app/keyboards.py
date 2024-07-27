@@ -5,8 +5,8 @@ from aiogram.types import (ReplyKeyboardMarkup, KeyboardButton,
 main = ReplyKeyboardMarkup(keyboard=[
     [KeyboardButton(text='💵Купить'), KeyboardButton(text='⚡️Вывести')],
     [KeyboardButton(text='🎮Игры')],
-    [KeyboardButton(text='🔢Посчитать'), KeyboardButton(text='🍿Новости')],
-    [KeyboardButton(text='📝Отзывы')],[KeyboardButton(text='📖Поддержка')]
+    [KeyboardButton(text='🔢Посчитать'), KeyboardButton(text='📖Поддержка')],
+    [KeyboardButton(text='📝Отзывы')]
 ], 
 resize_keyboard=True, input_field_placeholder='Привет, нажми кнопку интересующую тебя'
 )
@@ -34,7 +34,7 @@ Verify = InlineKeyboardMarkup(inline_keyboard=[
 
 Faq = InlineKeyboardMarkup(inline_keyboard=[
 
-    [InlineKeyboardButton(text='⬅️Назад', callback_data='Back'), InlineKeyboardButton(text='📝Поддержка', callback_data='Faq')]
+    [InlineKeyboardButton(text='⬅️Назад', callback_data='Back'), InlineKeyboardButton(text='📝Поддержка', url='https://t.me/KooStyyYaa')]
 ])
 
 Admin = InlineKeyboardMarkup(inline_keyboard=[
@@ -43,3 +43,6 @@ Admin = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='Статистика', callback_data='static')]
 ])
 
+ok = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text='✅Принять', callback_data='Ok'), InlineKeyboardButton(text='🚫Отклонить', callback_data='Cancel')]
+])

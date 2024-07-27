@@ -17,7 +17,7 @@ class User(Base):
     
     id: Mapped[int] = mapped_column(primary_key=True)
     tg_id = mapped_column(BigInteger)
-    #balance = 
+    #balance = mapped_column(BigInteger, primary_key=True)
     
 async def async_main():
     async with engine.begin() as conn:

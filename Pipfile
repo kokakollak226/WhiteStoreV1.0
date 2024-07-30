@@ -5,6 +5,10 @@ name = "pypi"
 
 [packages]
 aiogram = "*"
+sqlalchemy = "*"
+python-dotenv = "*"
+aiosqlite = "*"
+redis = "*"
 
 [dev-packages]
 

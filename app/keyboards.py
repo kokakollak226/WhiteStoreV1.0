@@ -4,8 +4,7 @@ from aiogram.types import (ReplyKeyboardMarkup, KeyboardButton,
 
 main = ReplyKeyboardMarkup(keyboard=[
     [KeyboardButton(text='💵Купить'), KeyboardButton(text='⚡️Вывести')],
-    [KeyboardButton(text='🎮Игры')],
-    [KeyboardButton(text='🔢Посчитать'), KeyboardButton(text='📖Поддержка')],
+    [KeyboardButton(text='🎮Игры'), KeyboardButton(text='📖Поддержка')],
     [KeyboardButton(text='📝Отзывы')]
 ], 
 resize_keyboard=True, input_field_placeholder='Привет, нажми кнопку интересующую тебя'
@@ -36,6 +35,12 @@ Faq = InlineKeyboardMarkup(inline_keyboard=[
 
     [InlineKeyboardButton(text='⬅️Назад', callback_data='Back'), InlineKeyboardButton(text='📝Поддержка', url='https://t.me/KooStyyYaa')]
 ])
+
+main_admin= ReplyKeyboardMarkup(keyboard=[
+    [KeyboardButton(text='💵Купить'), KeyboardButton(text='⚡️Вывести')],
+    [KeyboardButton(text='🎮Игры'), KeyboardButton(text='📖Поддержка')],
+    [KeyboardButton(text='📝Отзывы'), KeyboardButton(text='👑Админка')]
+], resize_keyboard=True)
 
 Admin = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='Рассылка', callback_data='sms')],

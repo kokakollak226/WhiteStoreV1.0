@@ -1,14 +1,14 @@
 import os
 from dotenv import load_dotenv
 from aiogram import F, Router
-from aiogram.filters import CommandStart, Command
+from aiogram.filters import CommandStart
 from aiogram.types import Message, CallbackQuery
 import app.keyboards as kb
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
 import app.database.requests as rq
-from aiogram import Bot
 from sqlalchemy.ext.asyncio import AsyncSession
+from aiogram import Bot
 
 
 router = Router()
@@ -20,6 +20,7 @@ class dialog(StatesGroup):
 
 class standgold(StatesGroup):
     id = State()
+    rub = State()
     gold = State()
     bank = State()
     image = State()
@@ -179,9 +180,8 @@ async def screen(message:Message, state:FSMContext, bot: Bot, session: AsyncSess
     await message.answer('💵Средства поступят к вам на баланс после проверки')
     await state.set_state(None)
     data = await state.get_data()
-    golda = int(data['gold'])
-    id = data['id']
-    await bot.send_photo(chat_id=os.getenv('ADMIN_VORTEX'), photo=data['image'], caption=f'*id*:`@{id}`\n💵*Пополнение баланса*💵 \n💵*{golda}RUB*\n🍯*{round(golda / 0.66, 2)}G*\n💵*Bank*: *{data['bank']}*',parse_mode='Markdown', reply_markup=kb.ok)
+    await rq.orm_order(session, data)
+    #await bot.send_photo(chat_id=os.getenv('ADMIN_VORTEX'), photo=data['image'], caption=f'*id*:`@{id}`\n💵*Пополнение баланса*💵 \n💵*{golda}RUB*\n🍯*{round(golda / 0.66, 2)}G*\n💵*Bank*: *{data['bank']}*',parse_mode='Markdown', reply_markup=kb.ok)
     await state.clear()
 
 @router.callback_query(F.data == 'Ok')

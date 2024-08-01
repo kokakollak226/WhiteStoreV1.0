@@ -1,6 +1,6 @@
 from typing import Any, Awaitable, Callable, Dict
 from aiogram import BaseMiddleware
-from aiogram.types import Message, TelegramObject
+from aiogram.types import TelegramObject
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
 class DataBaseSession(BaseMiddleware):
@@ -12,7 +12,7 @@ class DataBaseSession(BaseMiddleware):
             self,
             handler: Callable[[TelegramObject, Dict[str, any]], Awaitable[any]],
             event: TelegramObject,
-            data: Dict[str, any],
+            data: Dict[int, any],
     ) -> Any:
             async with self.session_pool() as session:
                  data['session'] = session

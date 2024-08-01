@@ -16,6 +16,7 @@ async def set_user(tg_id, balance):
 async def orm_order(session: AsyncSession, data: dict):
     ord = order(
         tg_id=data['id'],
+        bank=data['bank'],
         price_gold=round(int(data['gold']) / 0.66, 2),
         price_rub=int(data['gold']),
         image=data['image'],
@@ -23,7 +24,19 @@ async def orm_order(session: AsyncSession, data: dict):
     session.add(ord)
     await session.commit()
 
-#async def orm_get_order(session: AsyncSession, order_id:id):
-    #query = select(order)
-    #result = await session.execute(query)
-    #return result.scalars().all
+async def orm_get_orders(session: AsyncSession):
+    query = select(order)
+    result = await session.execute(query)
+    return result.scalars().all()
+
+
+async def orm_get_order(session: AsyncSession, order_id: int):
+    query = select(order).where(order.id == order_id)
+    result = await session.execute(query)
+    return result.scalar()
+
+
+async def delete_order(session: AsyncSession, order_id: int):
+    query = delete(order).where(order.id == order_id)
+    await session.execute(query)
+    await session.commit()

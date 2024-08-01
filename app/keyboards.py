@@ -1,6 +1,51 @@
 from aiogram.types import (ReplyKeyboardMarkup, KeyboardButton,
                            InlineKeyboardMarkup, InlineKeyboardButton)
+from aiogram.utils.keyboard import InlineKeyboardBuilder
 
+
+def get_callback_btns(
+    *,
+    btns: dict[str, str],
+    sizes: tuple[int] = (2,)):
+
+    keyboard = InlineKeyboardBuilder()
+
+    for text, data in btns.items():
+        
+        keyboard.add(InlineKeyboardButton(text=text, callback_data=data))
+
+    return keyboard.adjust(*sizes).as_markup()
+
+
+def get_url_btns(
+    *,
+    btns: dict[str, str],
+    sizes: tuple[int] = (2,)):
+
+    keyboard = InlineKeyboardBuilder()
+
+    for text, url in btns.items():
+        
+        keyboard.add(InlineKeyboardButton(text=text, url=url))
+
+    return keyboard.adjust(*sizes).as_markup()
+
+
+#Создать микс из CallBack и URL кнопок
+def get_inlineMix_btns(
+    *,
+    btns: dict[str, str],
+    sizes: tuple[int] = (2,)):
+
+    keyboard = InlineKeyboardBuilder()
+
+    for text, value in btns.items():
+        if '://' in value:
+            keyboard.add(InlineKeyboardButton(text=text, url=value))
+        else:
+            keyboard.add(InlineKeyboardButton(text=text, callback_data=value))
+
+    return keyboard.adjust(*sizes).as_markup()
 
 main = ReplyKeyboardMarkup(keyboard=[
     [KeyboardButton(text='💵Купить'), KeyboardButton(text='⚡️Вывести')],
@@ -45,9 +90,7 @@ main_admin= ReplyKeyboardMarkup(keyboard=[
 Admin = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='Рассылка', callback_data='sms')],
     [InlineKeyboardButton(text='Добавить в ЧС', callback_data='ban'), InlineKeyboardButton(text='Убрать из чс', callback_data='unban')],
-    [InlineKeyboardButton(text='Статистика', callback_data='static')]
+    [InlineKeyboardButton(text='Статистика', callback_data='static')],[InlineKeyboardButton(text='Заказы', callback_data='orders')]
 ])
 
-ok = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text='✅Принять', callback_data='Ok'), InlineKeyboardButton(text='🚫Отклонить', callback_data='Cancel')]
-])
+

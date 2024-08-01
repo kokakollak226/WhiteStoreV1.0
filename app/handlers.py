@@ -8,7 +8,7 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
 import app.database.requests as rq
 from aiogram import Bot
-import aiogram.utils.markdown as md
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 router = Router()
@@ -22,12 +22,12 @@ class standgold(StatesGroup):
     id = State()
     gold = State()
     bank = State()
-    verify = State()
+    image = State()
 
 @router.message(CommandStart())
 async def cmd_start(message: Message, state: FSMContext):
     await state.set_state(None)
-    await rq.set_user(message.from_user.id)
+    await rq.set_user(message.from_user.id, 0)
     await message.answer(f'🏠Главное меню.\n'
                         f'👋Здравствуйте <b>{message.from_user.first_name}</b>\n\n'
                         f'📱Используй кнопки для \n-взаимодействия.\n\n'
@@ -169,20 +169,19 @@ async def verify(callback: CallbackQuery, state: FSMContext):
     await callback.answer('Действуйте по инструкции')
     await callback.message.edit_text('📸Скиньте сюда в чат <b>скриншот перевода</b>', parse_mode='HTML')
     await callback.message.answer('⁉️ <b>Важно</b>: не обрезайте скриншот, на нем должно быть видно <b>дату</b>, <b>время</b> и <b>получателя</b>.', parse_mode='HTML')
-    await state.set_state(standgold.verify)
+    await state.set_state(standgold.image)
 
 
-
-@router.message(standgold.verify, F.photo)
-async def screen(message:Message, state:FSMContext, bot: Bot):
-    await state.update_data(verify=message.photo[-1].file_id)
+@router.message(standgold.image, F.photo)
+async def screen(message:Message, state:FSMContext, bot: Bot, session: AsyncSession):
+    await state.update_data(image=message.photo[-1].file_id)
     await message.answer('✅<b>Ваш заказ принят!</b>', parse_mode='HTML')
     await message.answer('💵Средства поступят к вам на баланс после проверки')
     await state.set_state(None)
     data = await state.get_data()
     golda = int(data['gold'])
     id = data['id']
-    await bot.send_photo(chat_id=os.getenv('ADMIN_VORTEX'), photo=data['verify'], caption=f'*id*:`@{id}`\n💵*Пополнение баланса*💵 \n💵*{golda}RUB*\n🍯*{round(golda / 0.66, 2)}G*\n💵*Bank*: *{data['bank']}*',parse_mode='Markdown', reply_markup=kb.ok)
+    await bot.send_photo(chat_id=os.getenv('ADMIN_VORTEX'), photo=data['image'], caption=f'*id*:`@{id}`\n💵*Пополнение баланса*💵 \n💵*{golda}RUB*\n🍯*{round(golda / 0.66, 2)}G*\n💵*Bank*: *{data['bank']}*',parse_mode='Markdown', reply_markup=kb.ok)
     await state.clear()
 
 @router.callback_query(F.data == 'Ok')

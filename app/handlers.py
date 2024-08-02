@@ -20,7 +20,7 @@ class dialog(StatesGroup):
     whitelist = State()
 
 class standgold(StatesGroup):
-    id = State()
+    tg_id = State()
     rub = State()
     gold = State()
     bank = State()
@@ -178,7 +178,7 @@ async def verify(callback: CallbackQuery, state: FSMContext):
 @router.message(standgold.image, F.photo)
 async def screen(message:Message, state:FSMContext, bot: Bot, session: AsyncSession):
     await state.update_data(image=message.photo[-1].file_id)
-    await state.update_data(id = message.from_user.id)
+    await state.update_data(tg_id=message.from_user.username)
     try:
         data = await state.get_data()
         await orm_order(session, data)
@@ -207,7 +207,7 @@ async def Order(callback: CallbackQuery, session: AsyncSession):
         await callback.message.answer_photo(
             order.image,
             caption=f'💵Пополнение баланса💵\n\n'
-            f'*id*:{order.tg_id}\n'
+            f'*id*:`@{order.tg_id}`\n'
             f'*bank*:{order.bank}\n'
             f'💵{order.price_rub}RUB\n'
             f'🍯{round(order.price_gold, 2)}\n',
@@ -222,19 +222,19 @@ async def Order(callback: CallbackQuery, session: AsyncSession):
     await callback.message.answer(f"Количество заказов *{count} ⁉️*", parse_mode='Markdown')
 
 
-@router.callback_query(F.data == 'Ok')
-async def Ok(callback: CallbackQuery, state: FSMContext, bot: Bot):
-    await callback.answer('✅Заказ принят!')
-    await bot.send_message(chat_id=id, text=f'Ваш скриншот проверен и принят, вам на баланс начислено Рублей')
-    await callback.message.delete()
-
-@router.callback_query(F.data.startswith("delete_"))
-async def delete_ord(callback: CallbackQuery, session: AsyncSession):
+@router.callback_query(F.data.startswith('ok_'))
+async def Ok(callback: CallbackQuery, bot: Bot, session: AsyncSession):
     order_id = callback.data.split("_")[-1]
     await delete_order(session, int(order_id))
 
-    await callback.answer("Товар удален")
-    await callback.message.answer("Товар удален!")
+    await callback.answer("Заказ принят!", show_alert=True)
+    await callback.message.delete()
+
+@router.callback_query(F.data.startswith("delete_"))
+async def delete_ord(callback: CallbackQuery, bot: Bot, session: AsyncSession):
+    order_id = callback.data.split("_")[-1]
+    await delete_order(session, int(order_id))
+    await callback.answer("Заказ отменён!", show_alert=True)
     await callback.message.delete()
     
 

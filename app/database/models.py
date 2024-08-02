@@ -24,7 +24,7 @@ class order(Base):
     __tablename__ = 'order'
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    tg_id: Mapped[str] = mapped_column(BigInteger, nullable=False)
+    tg_id: Mapped[str] = mapped_column(String(60), nullable=False)
     bank: Mapped[str] = mapped_column(String(50), nullable=False)
     price_gold: Mapped[float] = mapped_column(Float(asdecimal=True), nullable=False)
     price_rub: Mapped[int] = mapped_column(Integer, nullable=False)

@@ -20,11 +20,13 @@ class dialog(StatesGroup):
     whitelist = State()
 
 class standgold(StatesGroup):
+    tg_name = State()
     tg_id = State()
     rub = State()
     gold = State()
     bank = State()
     image = State()
+    order_change = None
 
 @router.message(CommandStart())
 async def cmd_start(message: Message, state: FSMContext):
@@ -61,7 +63,7 @@ async def cmd_start(message: Message, state: FSMContext):
 @router.message(F.text == '💵Купить')
 async def buy(message: Message, state: FSMContext):
     await state.set_state(standgold.gold)
-    await message.answer(f'🍯Введи в чат <b>сумму в Рублях</b>\nна которую хочешь пополнить баланс. \n 💡 <b>Например</b>: <b>100₽</b> = <b>151.52G</b>',parse_mode='HTML', reply_markup=kb.menu)
+    await message.answer(f'🍯Введи в чат <b>сумму в Рублях</b>\nна которую хочешь пополнить баланс. \n 💡 <b>Например</b>: <b>💵100₽</b> = <b>🍯151.52G</b>',parse_mode='HTML', reply_markup=kb.menu)
     
     
 @router.message(standgold.gold)
@@ -178,7 +180,8 @@ async def verify(callback: CallbackQuery, state: FSMContext):
 @router.message(standgold.image, F.photo)
 async def screen(message:Message, state:FSMContext, bot: Bot, session: AsyncSession):
     await state.update_data(image=message.photo[-1].file_id)
-    await state.update_data(tg_id=message.from_user.username)
+    await state.update_data(tg_name=message.from_user.username)
+    await state.update_data(tg_id = message.from_user.id)
     try:
         data = await state.get_data()
         await orm_order(session, data)
@@ -207,7 +210,7 @@ async def Order(callback: CallbackQuery, session: AsyncSession):
         await callback.message.answer_photo(
             order.image,
             caption=f'💵Пополнение баланса💵\n\n'
-            f'*id*:`@{order.tg_id}`\n'
+            f'*id*:`@{order.tg_name}`\n'
             f'*bank*:{order.bank}\n'
             f'💵{order.price_rub}RUB\n'
             f'🍯{round(order.price_gold, 2)}\n',
@@ -219,20 +222,25 @@ async def Order(callback: CallbackQuery, session: AsyncSession):
                 }
             ),
         )
-    await callback.message.answer(f"Количество заказов *{count} ⁉️*", parse_mode='Markdown')
+    await callback.message.answer(f"Количество заказов *{count}* ⁉️", parse_mode='Markdown')
 
 
 @router.callback_query(F.data.startswith('ok_'))
-async def Ok(callback: CallbackQuery, bot: Bot, session: AsyncSession):
+async def Ok(callback: CallbackQuery, bot: Bot, state: FSMContext, session: AsyncSession):
     order_id = callback.data.split("_")[-1]
-    await delete_order(session, int(order_id))
-
+    order_change = await orm_get_order(session, int(order_id))
+    standgold.order_change=order_change
+    await bot.send_message(chat_id=order_change.tg_id, text=f'✅*Ваш заказ проверен и принят*. \n\n*вам начислено*: \n💵`{order_change.price_rub}` *RUB* : 🍯*{round(order_change.price_gold, 2)} GOLD*', parse_mode='Markdown')
     await callback.answer("Заказ принят!", show_alert=True)
+    await delete_order(session, int(order_id))
     await callback.message.delete()
 
 @router.callback_query(F.data.startswith("delete_"))
 async def delete_ord(callback: CallbackQuery, bot: Bot, session: AsyncSession):
     order_id = callback.data.split("_")[-1]
+    order_change = await orm_get_order(session, int(order_id))
+    standgold.order_change=order_change
+    await bot.send_message(chat_id=order_change.tg_id, text=f'⁉️*Ваш заказ на сумму* `{order_change.price_rub}` *RUB отклонён*\n\n*❗Если не согласны с решением напишите в поддержку*', parse_mode='Markdown')
     await delete_order(session, int(order_id))
     await callback.answer("Заказ отменён!", show_alert=True)
     await callback.message.delete()

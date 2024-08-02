@@ -15,6 +15,7 @@ async def set_user(tg_id, balance):
 
 async def orm_order(session: AsyncSession, data: dict):
     ord = order(
+        tg_name=data['tg_name'],
         tg_id=data['tg_id'],
         bank=data['bank'],
         price_gold=round(int(data['gold']) / 0.66, 2),

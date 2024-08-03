@@ -5,13 +5,42 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database.models import order, order_gold
 
 
-async def set_user(tg_id, balance):
-    async with async_session() as session:
-        user = await session.scalar(select(User).where(User.tg_id == tg_id))
+async def orm_add_user(
+        session: AsyncSession,
+        tg_id: int,
+        balance: int,
+):
+    query = select(User).where(User.tg_id == tg_id)
+    result = await session.execute(query)
+    if result.first() is None:
+        session.add(
+            User(tg_id=tg_id, balance=balance)
+        )
+        await session.commit()
 
-        if not user:
-            session.add(User(tg_id=tg_id, balance=balance))
-            await session.commit()
+async def user_balance(
+        session: AsyncSession,
+        tg_id: int,
+):
+    query = select(User.balance).where(User.tg_id == tg_id)
+    result = await session.execute(query)
+    return result.scalar()
+
+async def Profile(     
+        session: AsyncSession,
+        tg_id: int,
+):
+    query = select(User.id).where(User.tg_id == tg_id)
+    result = await session.execute(query)
+    return result.scalar()
+
+async def Profiles(     
+        session: AsyncSession,
+):
+    query = select(User.tg_id)
+    result = await session.execute(query)
+    return result.scalars().all()
+    
 
 async def orm_order(session: AsyncSession, data: dict):
     ord = order(
@@ -35,6 +64,19 @@ async def orm_get_order(session: AsyncSession, order_id: int):
     query = select(order).where(order.id == order_id)
     result = await session.execute(query)
     return result.scalar()
+
+async def orm_update_balance(session: AsyncSession, user_tg_id: int, balance: int):
+    query = (
+        update(User)
+        .where(User.tg_id == user_tg_id)
+        .values(
+            tg_id=user_tg_id,
+            balance=User.balance+balance,
+        )
+    )
+    await session.execute(query)
+    await session.commit()
+
 
 
 async def delete_order(session: AsyncSession, order_id: int):

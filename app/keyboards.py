@@ -49,8 +49,8 @@ def get_inlineMix_btns(
 
 main = ReplyKeyboardMarkup(keyboard=[
     [KeyboardButton(text='💵Купить'), KeyboardButton(text='⚡️Вывести')],
-    [KeyboardButton(text='🎮Игры'), KeyboardButton(text='📖Поддержка')],
-    [KeyboardButton(text='📝Отзывы')]
+    [KeyboardButton(text='🎮Игры'), KeyboardButton(text='📝Отзывы')],
+    [KeyboardButton(text='🆔Профиль'), KeyboardButton(text='📖Поддержка')]
 ], 
 resize_keyboard=True, input_field_placeholder='Привет, нажми кнопку интересующую тебя'
 )
@@ -83,8 +83,9 @@ Faq = InlineKeyboardMarkup(inline_keyboard=[
 
 main_admin= ReplyKeyboardMarkup(keyboard=[
     [KeyboardButton(text='💵Купить'), KeyboardButton(text='⚡️Вывести')],
-    [KeyboardButton(text='🎮Игры'), KeyboardButton(text='📖Поддержка')],
-    [KeyboardButton(text='📝Отзывы'), KeyboardButton(text='👑Админка')]
+    [KeyboardButton(text='🎮Игры'), KeyboardButton(text='📝Отзывы')],
+    [KeyboardButton(text='🆔Профиль'), KeyboardButton(text='📖Поддержка')], 
+    [KeyboardButton(text='👑Админка')]
 ], resize_keyboard=True)
 
 Admin = InlineKeyboardMarkup(inline_keyboard=[

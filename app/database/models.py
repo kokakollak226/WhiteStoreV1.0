@@ -19,6 +19,19 @@ class User(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     tg_id: Mapped[int] = mapped_column(BigInteger, nullable=False, unique=True)
     balance: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    balance_gold:  Mapped[float] = mapped_column(Float(asdecimal=True), nullable=False)
+    #gold_listing: Mapped[float] = mapped_column(Float(asdecimal=True), nullable=False)
+
+class Admin(Base):
+    __tablename__ = 'admin'
+    
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    tg_id: Mapped[int] = mapped_column(BigInteger, nullable=False, unique=True)
+    lvl: Mapped[int] = mapped_column(Integer, nullable=False)
+    name: Mapped[str] = mapped_column(String(70), nullable=False)
+    
+    
+
 
 class category_order(Base):
     __tablename__ = 'category'
@@ -37,7 +50,6 @@ class order(Base):
     bank: Mapped[str] = mapped_column(String(50), nullable=False)
     price_gold: Mapped[float] = mapped_column(Float(asdecimal=True), nullable=False)
     price_rub: Mapped[int] = mapped_column(Integer, nullable=False)
-    #category_id: Mapped[int] = mapped_column(ForeignKey('category.id'), nullable=False)
     image: Mapped[str] = mapped_column(String(150), nullable=False)
 
 class order_gold(Base):
@@ -45,9 +57,11 @@ class order_gold(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     tg_id: Mapped[str] = mapped_column(BigInteger, nullable=False)
+    tg_name: Mapped[str] = mapped_column(String(60), nullable=False)
+    nick: Mapped[str] = mapped_column(String(60))
     price_gold: Mapped[float] = mapped_column(Float(asdecimal=True), nullable=False)
-    price_rub: Mapped[int] = mapped_column(Integer, nullable=False)
-    image: Mapped[str] = mapped_column(String(150))
+    screen_prof: Mapped[str] = mapped_column(String(150))
+    screen_skin: Mapped[str] = mapped_column(String(150))
 
     
 async def async_main():

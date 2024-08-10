@@ -6,10 +6,9 @@ from app.middleware.db import DataBaseSession
 import asyncio
 import logging
 from aiogram import Bot, Dispatcher
-from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.fsm.storage.redis import RedisStorage
 from app.handlers import router
 from app.database.models import async_main
-
 
 allowed_updates=['message', 'edited_message', 'callback_query']
 
@@ -23,6 +22,6 @@ async def main():
     await dp.start_polling(bot, allowed_updates=allowed_updates)
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
-    storage = MemoryStorage()
+    #logging.basicConfig(level=logging.INFO)
+    storage = RedisStorage.from_url('redis://localhost:6379/0')
     asyncio.run(main())

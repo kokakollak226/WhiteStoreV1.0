@@ -19,6 +19,14 @@ class Course(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     course: Mapped[float] = mapped_column(Float(asdecimal=True), nullable=False)
 
+class Skins(Base):
+    __tablename__ = 'Skins'
+    
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    skin: Mapped[str] = mapped_column(String(150), nullable=False)
+    skin_screen: Mapped[str] = mapped_column(String(150), nullable=False)
+
+
 class User(Base):
     __tablename__ = 'users'
     
@@ -64,10 +72,8 @@ class order_gold(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     tg_id: Mapped[str] = mapped_column(BigInteger, nullable=False)
     tg_name: Mapped[str] = mapped_column(String(60), nullable=False)
-    nick: Mapped[str] = mapped_column(String(60))
     course: Mapped[float] = mapped_column(Float(asdecimal=True), nullable=False)
     price_gold: Mapped[float] = mapped_column(Float(asdecimal=True), nullable=False)
-    screen_prof: Mapped[str] = mapped_column(String(150))
     screen_skin: Mapped[str] = mapped_column(String(150))
 
 class yes_order_gold(Base):
@@ -76,10 +82,8 @@ class yes_order_gold(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     tg_id: Mapped[str] = mapped_column(BigInteger, nullable=False)
     tg_name: Mapped[str] = mapped_column(String(60), nullable=False)
-    nick: Mapped[str] = mapped_column(String(60))
     course: Mapped[float] = mapped_column(Float(asdecimal=True), nullable=False)
     price_gold: Mapped[float] = mapped_column(Float(asdecimal=True), nullable=False)
-    screen_prof: Mapped[str] = mapped_column(String(150))
     screen_skin: Mapped[str] = mapped_column(String(150))
 
 class all_order_gold(Base):
@@ -88,10 +92,8 @@ class all_order_gold(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     tg_id: Mapped[str] = mapped_column(BigInteger, nullable=False)
     tg_name: Mapped[str] = mapped_column(String(60), nullable=False)
-    nick: Mapped[str] = mapped_column(String(60))
     course: Mapped[float] = mapped_column(Float(asdecimal=True), nullable=False)
     price_gold: Mapped[float] = mapped_column(Float(asdecimal=True), nullable=False)
-    screen_prof: Mapped[str] = mapped_column(String(150))
     screen_skin: Mapped[str] = mapped_column(String(150))
 
 class yes_order(Base):

@@ -50,9 +50,9 @@ def get_inlineMix_btns(
 
 main = ReplyKeyboardMarkup(keyboard=[
     [KeyboardButton(text='💵Купить'), KeyboardButton(text='⚡️Вывести')],
-    [KeyboardButton(text='🍯Продать')],
     [KeyboardButton(text='🎮Игры'), KeyboardButton(text='🆔Профиль')],
     [KeyboardButton(text='📖Информация')], 
+    [KeyboardButton(text='🍯Продать')]
 ], 
 resize_keyboard=True, input_field_placeholder='Привет, нажми кнопку интересующую тебя'
 )
@@ -86,20 +86,23 @@ Faq = InlineKeyboardMarkup(inline_keyboard=[
 
 main_admin= ReplyKeyboardMarkup(keyboard=[
     [KeyboardButton(text='💵Купить'), KeyboardButton(text='⚡️Вывести')],
-    [KeyboardButton(text='🍯Продать')],
     [KeyboardButton(text='🎮Игры'), KeyboardButton(text='🆔Профиль')],
-    [KeyboardButton(text='📖Информация')], 
+    [KeyboardButton(text='📖Информация')],
+    [KeyboardButton(text='🍯Продать')],
     [KeyboardButton(text='👑Админка')]
 ], resize_keyboard=True)
 
 Admin = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text='Аудитория', callback_data='subscribes'), InlineKeyboardButton(text='Админы', callback_data='admins')],
+    [InlineKeyboardButton(text='Курс', callback_data='course'), InlineKeyboardButton(text='Скин', callback_data='skin')],
+    [InlineKeyboardButton(text='Заказы', callback_data='orders')]
+])
+
+Subscribes = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='Рассылка', callback_data='sms')],
-    [InlineKeyboardButton(text='Админы', callback_data='admins')],
-    [InlineKeyboardButton(text='Заказы', callback_data='orders')],
     [InlineKeyboardButton(text='Баны', callback_data='bans')],
     [InlineKeyboardButton(text='Розыгрыш', callback_data='bonus')],
-    [InlineKeyboardButton(text='Статистика', callback_data='static')],
-    [InlineKeyboardButton(text='Курс', callback_data='course')]
+    [InlineKeyboardButton(text='Статистика', callback_data='static')]
 ])
 
 Bans = InlineKeyboardMarkup(inline_keyboard=[
@@ -113,7 +116,7 @@ type_order = InlineKeyboardMarkup(inline_keyboard=[
 
 fq = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='📝Поддержка', url='https://t.me/KooStyyYaa')], 
-    [InlineKeyboardButton(text='📖Отзывы', url='https://t.me/WhiteStoreReview')], 
+    [InlineKeyboardButton(text='📖Отзывы', url='https://t.me/WhiteStoreReviewss')], 
     [InlineKeyboardButton(text='📰Новости', url='https://t.me/WhiteStoreGold')],
     [InlineKeyboardButton(text='📰Курс', callback_data='curse')],
 ])

@@ -9,7 +9,7 @@ from app.database.models import User
 import app.keyboards as kb
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
-from app.database.requests import adm_id, check_banned, check_name_ban, orm_add_course, orm_add_user, Profile, Profiles, adm_list, check_adm, check_ban, check_lvl, check_name, check_what_ban, delete_admin, delete_all_order, delete_all_order_gold, delete_ban, delete_order_gold, delete_user, orm_add_admin, orm_all_order, orm_all_order_gold, orm_all_orders_gold, orm_ban, orm_check_course, orm_get_all_orders, orm_get_order_gold, orm_get_orders, orm_get_order, delete_order, orm_get_orders_gold, orm_get_orders_gold_error, orm_get_orders_gold_id, orm_get_orders_id, orm_get_yes_orders, orm_order, orm_order_gold, orm_update_balance, orm_update_balance_gold, orm_update_course, orm_yes_order, orm_yes_order_gold, orm_yes_orders_gold, user_balance, user_balance_ban, user_list
+from app.database.requests import adm_id, check_banned, check_name_ban, orm_add_course, orm_add_skin, orm_add_user, Profile, Profiles, adm_list, check_adm, check_ban, check_lvl, check_name, check_what_ban, delete_admin, delete_all_order, delete_all_order_gold, delete_ban, delete_order_gold, delete_user, orm_add_admin, orm_all_order, orm_all_order_gold, orm_all_orders_gold, orm_ban, orm_check_course, orm_check_skin, orm_check_skin_screen, orm_get_all_orders, orm_get_order_gold, orm_get_orders, orm_get_order, delete_order, orm_get_orders_gold, orm_get_orders_gold_error, orm_get_orders_gold_id, orm_get_orders_id, orm_get_yes_orders, orm_order, orm_order_gold, orm_update_balance, orm_update_balance_gold, orm_update_course, orm_update_skin, orm_yes_order, orm_yes_order_gold, orm_yes_orders_gold, user_balance, user_balance_ban, user_list
 from sqlalchemy.ext.asyncio import AsyncSession
 from aiogram import Bot
 from aiogram.types import InputMediaPhoto
@@ -20,6 +20,10 @@ router = Router()
 
 class course(StatesGroup):
     new = State()
+
+class Change_skin(StatesGroup):
+    new_skin = State()
+    skin_screen = State()
 
 class statistic(StatesGroup):
     all_users = State()
@@ -64,9 +68,7 @@ class standgold(StatesGroup):
 
 class order_golds(StatesGroup):
     translate = State()
-    nick = State()
     gold_course = State()
-    screenshot_profile = State()
     screenshot_skin = State()
     order_verify = None
 
@@ -96,9 +98,9 @@ async def cmd_start(message: Message, state: FSMContext, session: AsyncSession):
 @router.message(F.text == '👑Админка')
 async def admin(message: Message, state: FSMContext, session: AsyncSession):
     if message.from_user.id == (int(os.getenv('ADMIN'))):
-        await message.answer('*Выберите пункт интересующий вас*', parse_mode='Markdown', reply_markup=kb.Admin)
+        await message.answer('❗️*Выберите пункт меню*', parse_mode='Markdown', reply_markup=kb.Admin)
     elif await check_adm(session, message.from_user.id) != None:
-        await message.answer('*Выберите пункт интересующий вас*', parse_mode='Markdown', reply_markup=kb.Admin)
+        await message.answer('❗️*Выберите пункт меню*', parse_mode='Markdown', reply_markup=kb.Admin)
         await state.clear()
     else: 
         await message.answer('🤖я не понимаю вас, если появились проблемы с работой бота нажмите\n /start')
@@ -178,44 +180,37 @@ async def ordered(message: Message, state: FSMContext, session: AsyncSession):
         await message.answer('*Для начала авторизуйтесь\n/start*', parse_mode='Markdown')
 
 @router.message(order_golds.translate, F.text)
-async def translate(message: Message, state: FSMContext, session: AsyncSession):
+async def translate(message: Message, state: FSMContext, session: AsyncSession, bot: Bot):
     tg_id = message.from_user.id
     balance = await user_balance(session=session, tg_id=tg_id)
     try:
-        golda = round(float(message.text), 2)
-        if golda < 50 and golda > 0:
-            await message.answer('*Минимальная сумма вывода*: \n🍯`50` *GOLD*', parse_mode='Markdown')
-        elif golda-0.01 <= balance and golda > 0:
-            await state.update_data(translate=golda)
-            await message.answer(f'❗*Отлично далее*'
-                                 f'\n👾*напиши свой ник*'
-                                 f'\n*👻оружие(с паттерном)*'
-                                 f'\n🚀*паттерн*'
-                                 f'\n❗*ВАЖНО*: *Укажите Nick Gun pattern*',parse_mode='Markdown') 
-            await state.set_state(order_golds.nick)
-        elif golda < 0:
-            await message.answer('♻️*Введите корректное число*\n💡*Например*: 🍯`100`', parse_mode='Markdown')
-        else:
-            await message.answer(f'❗*Недостаточно средств на балансе*\n*🍯Ваш баланс*: `{round(balance, 2)}` *GOLD*', parse_mode='Markdown')
+        golda = int(message.text)
+        skin = await orm_check_skin_screen(session)
+        try:
+            if golda < 50 and golda > 0:
+                await message.answer('*Минимальная сумма вывода*: \n🍯`50` *GOLD*', parse_mode='Markdown')
+            elif golda <= balance and golda > 0:
+                await state.update_data(translate=golda)
+                await bot.send_photo(chat_id=message.chat.id, 
+                                        photo=skin, 
+                                        caption=
+                                            f'*🥳Отлично, далее выставляйте скин*: `{await orm_check_skin(session)}`'
+                                            f'\n\n🍯*за* `{golda * 1.25 + 0.01}`*G*'
+                                            f'\n\n❗*Отправьте сюда в чат скриншот выставленного на продажу {await orm_check_skin(session)}*'
+                                            f'\n\n💡*Инструкция*: *Рынок* -> *Мои запросы* -> *Запросы на продажу*'
+                                            f'\n\n❗*ВАЖНО*: *Поставьте галочку только мои запросы*'
+                                            f'\n❗*Как на примере*', parse_mode='Markdown')
+                await state.set_state(order_golds.screenshot_skin)
+            elif golda < 0:
+                await message.answer('♻️*Введите корректное число*\n💡*Например*: 🍯`100`', parse_mode='Markdown')
+            else:
+                await message.answer(f'❗*Недостаточно средств на балансе*\n*🍯Ваш баланс*: `{round(balance, 2)}` *GOLD*', parse_mode='Markdown')
+        except Exception:
+            await message.answer('🤖*я не понимаю вас, если появились проблемы с работой бота нажмите \n/start*', parse_mode='Markdown')
     except Exception:
-        await message.answer('🤖*я не понимаю вас, если появились проблемы с работой бота нажмите \n/start*', parse_mode='Markdown')
+        await message.answer('❗*Введите целое число*', parse_mode='Markdown')
+        await message.answer(f'💡*Доступно для вывода*: `{int(balance)}`', parse_mode='Markdown')
     
-@router.message(order_golds.nick, F.text)
-async def nick(message: Message, state: FSMContext):
-    await state.update_data(nick = message.text)
-    await message.answer(f'❗*Отправьте сюда в чат скриншот вашего профиля* `StandOff2`', parse_mode='Markdown', reply_markup=kb.menu)
-    await state.set_state(order_golds.screenshot_profile)
-
-@router.message(order_golds.screenshot_profile, F.photo)
-async def screen_prof(message: Message, state: FSMContext):
-    await state.update_data(screenshot_profile=message.photo[-1].file_id)
-    data = await state.get_data()
-    await message.answer(f'*🥳Отлично, далее выставляйте скин: \n🎲указанный ранее(с паттерном)*\n'
-                        f'🍯*за* `{round(float(data["translate"]) * 1.25, 2)}`*G*\n'
-                        f'❗*Отправьте сюда в чат скриншот выставленного на продажу оружия* `StandOff2`\n'
-                        f'💡*Инструкция*: *Рынок* -> *Мои запросы* -> *Запросы на продажу*',
-                        parse_mode='Markdown', reply_markup=kb.menu)
-    await state.set_state(order_golds.screenshot_skin)
 
 @router.message(order_golds.screenshot_skin, F.photo)
 async def translate(message: Message, state: FSMContext, bot: Bot, session: AsyncSession):
@@ -233,7 +228,7 @@ async def translate(message: Message, state: FSMContext, bot: Bot, session: Asyn
         await orm_order_gold(session, data)
         await orm_all_order_gold(session, data)
         await message.answer(f'✅*Ваша заявка на вывод отправлена на рассмотрение*', parse_mode='Markdown', reply_markup=kb.menu)
-        await message.answer('🍯*GOLD поступит к вам на баланс после проверки*(*до* `48`*Ч*)', parse_mode='Markdown')
+        await message.answer('🍯*GOLD поступит к вам на баланс после проверки*\n(*до* `48`*Ч*, *но обычно успеваем менее чем за* `1` *ч*)', parse_mode='Markdown')
     except Exception:
         await message.answer('Произошла ошибка. попробуйте снова или напишите в поддержку')
         await state.set_state(None)
@@ -265,7 +260,7 @@ async def faq(message:Message):
 async def curse(callback: CallbackQuery, session: AsyncSession):
     await callback.message.delete()
     await callback.answer()
-    await callback.message.answer(f'*Пока нет закупа, курс*: `{round(await orm_check_course(session), 2)}` \n*после закупа*: `0.66`', parse_mode='Markdown')
+    await callback.message.answer(f'❗️*До закупа курс*: `0.75`-`0.78` \n🚀*после закупа*: `0.63`-`0.69`', parse_mode='Markdown')
 
 @router.message(standgold.gold, F.text)
 async def sum(message: Message, state: FSMContext, session: AsyncSession):    
@@ -290,14 +285,12 @@ async def Back(callback: CallbackQuery, state: FSMContext, session: AsyncSession
     await callback.message.edit_text(f'📝 За <b>{golda}</b>₽ ты получаешь <b>{round(golda / data["rub_course"], 2)}G</b>. \n<b>Выбери удобный способ оплаты</b>:', parse_mode='HTML', reply_markup=kb.bank)
     await callback.answer('Вы вернулись назад')
     
-
 @router.callback_query(F.data == 'Edit')
 async def Back(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
     await callback.answer('Выберите способ оплаты')
     data = await state.get_data()
     golda = int(data['gold'])
     await callback.message.edit_text(f'📝 За <b>{golda}</b>₽ ты получаешь <b>{round(golda / data["rub_course"], 2)}G</b>. \n<b>Выбери удобный способ оплаты</b>:',parse_mode='HTML', reply_markup=kb.bank)
-
 
 @router.callback_query(F.data == 'SBP')
 async def SBP(callback: CallbackQuery, state:FSMContext, session: AsyncSession):
@@ -313,8 +306,6 @@ async def SBP(callback: CallbackQuery, state:FSMContext, session: AsyncSession):
                                   f'♻️*Вам придет ровно*: *{round(golda / data["rub_course"], 2)}G*\n\n'
                                   f'📸 После оплаты, *нажмите* \n«✅ *Я перевел*»',parse_mode='Markdown', reply_markup=kb.Verify)
 
-    
-
 @router.callback_query(F.data == 'Sberbank')
 async def Sberbank(callback: CallbackQuery, state:FSMContext, session: AsyncSession):
     await callback.answer('Действуйте по инструкции')
@@ -327,7 +318,6 @@ async def Sberbank(callback: CallbackQuery, state:FSMContext, session: AsyncSess
                                   f'🍯 *Игровая комиссия рынка на нас*.\n'
                                   f'♻️*Вам придет ровно*: *{round(golda / data["rub_course"], 2)}G*\n\n'
                                   f'📸 После оплаты, *нажмите* \n«✅ *Я перевел*»',parse_mode='Markdown', reply_markup=kb.Verify)
-
 
 @router.callback_query(F.data == 'Tinkoff')
 async def Tinkoff(callback: CallbackQuery, state:FSMContext, session: AsyncSession):
@@ -391,7 +381,7 @@ async def screen(message:Message, state:FSMContext, bot: Bot, session: AsyncSess
         data = await state.get_data()
         await orm_order(session, data)
         await message.answer('✅<b>Ваш заказ принят!</b>', parse_mode='HTML')
-        await message.answer('💵Средства поступят к вам на баланс после проверки(до 48Ч)')
+        await message.answer('💵*Средства поступят к вам на баланс после проверки*\n(*до 24Ч, но бычно менее чем за час*)', parse_mode='Markdown')
         await orm_all_order(session, data)
         for ids in await adm_id(session):
             await bot.send_message(chat_id=ids, text=f'💵*Заказ на пополнение баланса*', parse_mode='Markdown')
@@ -423,7 +413,7 @@ async def Rub_ord(callback: CallbackQuery, session: AsyncSession, bot: Bot):
         orders = len(await orm_get_orders(session))
         try:
             if int(orders) != 0 and int(orders) > 0:
-                await callback.message.edit_text(f"Количество заказов *{orders}* ⁉️", parse_mode='Markdown', reply_markup=kb.type_order)
+                await callback.message.edit_text(f"*Количество заказов* *{orders}* ⁉️", parse_mode='Markdown', reply_markup=kb.type_order)
                 for order in await orm_get_orders(session):
                     error = len(await orm_get_orders_id(session, order.tg_id))
                     for order_er in await orm_get_orders_id(session, order.tg_id): 
@@ -491,7 +481,7 @@ async def Rub_ord(callback: CallbackQuery, session: AsyncSession, bot: Bot):
         orders = len(await orm_get_orders_gold(session))
         try:
             if int(orders) != 0 and int(orders) > 0:
-                await callback.message.edit_text(f"Количество заказов *{orders}* ⁉️", parse_mode='Markdown', reply_markup=kb.type_order)
+                await callback.message.edit_text(f"*Количество заказов* *{orders}* ⁉️", parse_mode='Markdown', reply_markup=kb.type_order)
                 for order in await orm_get_orders_gold(session):
                     error = len(await orm_get_orders_gold_id(session, order.tg_id))
                     for order_er in await orm_get_orders_gold_id(session, order.tg_id):
@@ -502,13 +492,11 @@ async def Rub_ord(callback: CallbackQuery, session: AsyncSession, bot: Bot):
                             await callback.message.answer('❗️*Заявки отменены за багоюз*', parse_mode='Markdown')
                             break
                         else:
-                            await callback.message.answer_photo(order_er.screen_prof)
                             await callback.message.answer_photo(
                                 order_er.screen_skin,
-                                caption=f'🍯*Вывод Gold*\n\n'
-                                f'*id*:`@{order_er.tg_name}`\n'
-                               f'*nick*:{order_er.nick}\n'
-                                f'🍯{round(float(order_er.price_gold) * 1.25, 2)}G\n',
+                                caption= f'🍯*Вывод Gold*\n\n'
+                                    f'*id*:`@{order_er.tg_name}`\n'
+                                    f'🍯{round(float(order_er.price_gold) * 1.25, 2)}G\n',
                                 parse_mode='Markdown',
                                 reply_markup=kb.get_callback_btns(
                                     btns={
@@ -550,6 +538,11 @@ async def Nogold(callback: CallbackQuery, bot: Bot, session: AsyncSession):
     await delete_order_gold(session, int(order_id))
     await callback.answer("Заказ отменён!", show_alert=True)
     await callback.message.delete()
+
+@router.callback_query(F.data == 'subscribes')
+async def subscribes(callback: CallbackQuery):
+    await callback.answer()
+    await callback.message.edit_text('❗️*Выберите пункт меню*', reply_markup=kb.Subscribes, parse_mode='Markdown')
 
 @router.callback_query(F.data == 'bans')
 async def bans(callback:CallbackQuery, session: AsyncSession):
@@ -620,7 +613,6 @@ async def check_ban_list(callback: CallbackQuery, session: AsyncSession):
                                     f'\n'
                                     f'*Причина бана*: `{banned.what_ban}`', parse_mode='Markdown')
         
-
 @router.callback_query(F.data == 'sms')
 async def sms(callback:CallbackQuery, state: FSMContext, session: AsyncSession):
     if callback.from_user.id == int(os.getenv('ADMIN')) or await check_lvl(session, callback.from_user.id) == 3:
@@ -781,9 +773,9 @@ async def new_course(callback: CallbackQuery, state: FSMContext, session:AsyncSe
     await callback.answer()
     if callback.from_user.id == int(os.getenv('ADMIN')) or await check_lvl(session, callback.from_user.id) == 3:
         try:
-            await orm_add_course(session=session, course=0.78)
-            await callback.message.edit_text(f'*Сейчас курс* `{round(await orm_check_course(session), 2)}`', parse_mode='Markdown')
-            await callback.message.answer('*Введите новый курс*', parse_mode='Markdown')
+            await orm_add_course(session=session, course=0.75)
+            await callback.message.edit_text(f'🚀*Сейчас курс* `{round(await orm_check_course(session), 2)}`', parse_mode='Markdown')
+            await callback.message.answer('❗️*Введите новый курс*', parse_mode='Markdown')
             await state.set_state(course.new)
         except Exception:
             await callback.message.answer('❗️*Произошла ошибка*', parse_mode='Markdown')
@@ -801,6 +793,41 @@ async def new_cours(message: Message, state: FSMContext, session: AsyncSession):
             await message.answer('❗️*Курс не изменен*', parse_mode='Markdown')
     except Exception:
         await message.answer('❗️*Произошла ошибка*', parse_mode='Markdown')
+
+@router.callback_query(F.data == 'skin')
+async def skins(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
+    await callback.answer()
+    if callback.from_user.id == int(os.getenv('ADMIN')) or await check_lvl(session, callback.from_user.id) == 3:
+        try:
+            await orm_add_skin(session=session, skin='SM1014 "Serpent"', skin_screen='AgACAgIAAxkBAAICZWbDHViCVzfpfS8uvs0S4GxSfroEAAKl4jEbZI8ZSpMpKGY9ybRyAQADAgADeQADNQQ')
+            await callback.message.edit_text(f'🚀*Сейчас скин*: `{await orm_check_skin(session)}`', parse_mode='Markdown')
+            await callback.message.answer('❗️*Введите новый скин*', parse_mode='Markdown')
+            await state.set_state(Change_skin.new_skin)
+        except Exception:
+            await callback.message.answer('❗️*Произошла ошибка*', parse_mode='Markdown')
+    else:
+        await callback.message.edit_text(f'❗️*Не доступно*', parse_mode='Markdown')
+
+@router.message(Change_skin.new_skin, F.text)
+async def new_cours(message: Message, state: FSMContext):
+    try:
+        await state.update_data(new_skin = message.text)
+        await message.answer(f'✅*Скин будет изменён на* `{message.text}`\n\n❗️*Отправьте скриншот скина*', parse_mode='Markdown')
+        await state.set_state(Change_skin.skin_screen)
+    except Exception:
+        await message.answer('❗️*Произошла ошибка*', parse_mode='Markdown')
+
+@router.message(Change_skin.skin_screen, F.photo)
+async def skin_screen(message: Message, state: FSMContext, session:AsyncSession):
+    try:
+        data = await state.get_data()
+        skin = data['new_skin']
+        skin_screen = message.photo[-1].file_id
+        await orm_update_skin(session, skin=skin, skin_screen=skin_screen)
+        await message.answer(f'✅*Скин*: `{skin}` *сохранён*', parse_mode='Markdown')
+        await state.clear()
+    except Exception:
+        await message.answer('❗️*Ошибка*', parse_mode='Markdown')
 
 @router.message()
 async def send_echo(message: Message):

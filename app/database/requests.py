@@ -1,4 +1,4 @@
-from app.database.models import Banned, Course, all_order, all_order_gold, async_session, yes_order, yes_order_gold
+from app.database.models import Banned, Course, Skins, all_order, all_order_gold, async_session, yes_order, yes_order_gold
 from app.database.models import User, Admin
 from sqlalchemy import select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -151,10 +151,8 @@ async def orm_order_gold(session: AsyncSession, data: dict):
     ord_gold = order_gold(
         tg_name=data['tg_name'],
         tg_id=data['tg_id'],
-        nick=data['nick'],
         course=data['gold_course'],
         price_gold=round(float(data['translate']), 2),
-        screen_prof=data['screenshot_profile'],
         screen_skin=data['screenshot_skin']
         )
     session.add(ord_gold)
@@ -164,10 +162,8 @@ async def orm_all_order_gold(session: AsyncSession, data: dict):
     ord_gold = all_order_gold(
         tg_name=data['tg_name'],
         tg_id=data['tg_id'],
-        nick=data['nick'],
         course=data['gold_course'],
         price_gold=round(float(data['translate']), 2),
-        screen_prof=data['screenshot_profile'],
         screen_skin=data['screenshot_skin']
         )
     session.add(ord_gold)
@@ -182,10 +178,8 @@ async def orm_yes_order_gold(session: AsyncSession, order_verify: dict):
     ord_gold = yes_order_gold(
         tg_name=order_verify.tg_name,
         tg_id=order_verify.tg_id,
-        nick=order_verify.nick,
         course=order_verify.course,
         price_gold=round(order_verify.price_gold, 2),
-        screen_prof=order_verify.screen_prof,
         screen_skin=order_verify.screen_skin
         )
     session.add(ord_gold)
@@ -364,3 +358,42 @@ async def orm_update_course(session: AsyncSession, course: float):
     )
     await session.execute(query)
     await session.commit()
+
+async def orm_add_skin(
+        session: AsyncSession,
+        skin: str,
+        skin_screen: str
+        
+):
+    query = select(Skins).where(Skins.id == 1)
+    result = await session.execute(query)
+    if result.first() is None:
+        session.add(
+            Skins(skin=skin, skin_screen=skin_screen)) 
+        await session.commit()
+
+async def orm_update_skin(session: AsyncSession, skin: str, skin_screen: str):
+    query = (
+        update(Skins)
+        .where(Skins.id == 1)
+        .values(
+            skin = skin,
+            skin_screen = skin_screen
+        )
+    )
+    await session.execute(query)
+    await session.commit()
+
+async def orm_check_skin(
+        session: AsyncSession,
+):
+    query = select(Skins.skin).where(Skins.id==1)
+    result = await session.execute(query)
+    return result.scalar()
+
+async def orm_check_skin_screen(
+        session: AsyncSession,
+):
+    query = select(Skins.skin_screen).where(Skins.id==1)
+    result = await session.execute(query)
+    return result.scalar()

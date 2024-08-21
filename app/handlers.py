@@ -228,7 +228,8 @@ async def translate(message: Message, state: FSMContext, bot: Bot, session: Asyn
         await orm_order_gold(session, data)
         await orm_all_order_gold(session, data)
         await message.answer(f'✅*Ваша заявка на вывод отправлена на рассмотрение*', parse_mode='Markdown', reply_markup=kb.menu)
-        await message.answer('🍯*GOLD поступит к вам на баланс после проверки*\n(*до* `48`*Ч*, *но обычно успеваем менее чем за* `1` *ч*)', parse_mode='Markdown')
+        await message.answer('🍯*GOLD поступит к вам на баланс после проверки*(`24`*Часа*)'
+                             '\n\n❗*Обычно проверка занимает менее* `1` *Часа*', parse_mode='Markdown')
     except Exception:
         await message.answer('Произошла ошибка. попробуйте снова или напишите в поддержку')
         await state.set_state(None)
@@ -380,8 +381,9 @@ async def screen(message:Message, state:FSMContext, bot: Bot, session: AsyncSess
     try:
         data = await state.get_data()
         await orm_order(session, data)
-        await message.answer('✅<b>Ваш заказ принят!</b>', parse_mode='HTML')
-        await message.answer('💵*Средства поступят к вам на баланс после проверки*\n(*до 24Ч, но бычно менее чем за час*)', parse_mode='Markdown')
+        await message.answer('✅<b>Ваш заказ отправлен на рассмотрение!</b>', parse_mode='HTML')
+        await message.answer('💵*Средства поступят к вам на баланс после проверки* (`24`*Часа*)'
+                             '\n\n❗*Обычно проверка длится менее* `1` *Часа*', parse_mode='Markdown')
         await orm_all_order(session, data)
         for ids in await adm_id(session):
             await bot.send_message(chat_id=ids, text=f'💵*Заказ на пополнение баланса*', parse_mode='Markdown')
